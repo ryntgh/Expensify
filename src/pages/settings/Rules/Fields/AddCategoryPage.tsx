@@ -52,7 +52,7 @@ function AddCategoryPage({route}: AddCategoryPageProps) {
     const backToRoute = hash ? ROUTES.SETTINGS_RULES_EDIT.getRoute(hash) : ROUTES.SETTINGS_RULES_ADD.getRoute();
 
     const onSave = (value?: string) => {
-        updateDraftRule({category: value});
+        updateDraftRule({category: value ?? ''});
     };
 
     return (

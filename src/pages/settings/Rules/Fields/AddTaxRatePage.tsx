@@ -26,7 +26,7 @@ function AddTaxRatePage({route}: AddTaxRatePageProps) {
     const backToRoute = hash ? ROUTES.SETTINGS_RULES_EDIT.getRoute(hash) : ROUTES.SETTINGS_RULES_ADD.getRoute();
 
     const onSave = (value?: string) => {
-        updateDraftRule({tax: value});
+        updateDraftRule({tax: value ?? ''});
     };
 
     return (

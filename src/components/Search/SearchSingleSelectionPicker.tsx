@@ -6,6 +6,7 @@ import useLocalize from '@hooks/useLocalize';
 import Navigation from '@libs/Navigation/Navigation';
 import type {OptionData} from '@libs/ReportUtils';
 import {sortOptionsWithEmptyValue} from '@libs/SearchQueryUtils';
+import CONST from '@src/CONST';
 import ROUTES from '@src/ROUTES';
 import type {Route} from '@src/ROUTES';
 import SearchFilterPageFooterButtons from './SearchFilterPageFooterButtons';
@@ -23,6 +24,7 @@ type SearchSingleSelectionPickerProps = {
     backToRoute?: Route;
     shouldAutoSave?: boolean;
     shouldShowTextInput?: boolean;
+    shouldShowNoneOption?: boolean;
 };
 
 function SearchSingleSelectionPicker({
@@ -33,6 +35,7 @@ function SearchSingleSelectionPicker({
     backToRoute,
     shouldAutoSave,
     shouldShowTextInput = true,
+    shouldShowNoneOption = false,
 }: SearchSingleSelectionPickerProps) {
     const {translate, localeCompare} = useLocalize();
 
@@ -66,18 +69,35 @@ function SearchSingleSelectionPicker({
 
     const noResultsFound = !initiallySelectedItemSection.length && !remainingItemsSection.length;
 
+    const noneOptionSection =
+        shouldShowNoneOption && !noResultsFound
+            ? [
+                  {
+                      text: translate('common.none'),
+                      keyForList: CONST.SEARCH.NONE_OPTION_ITEM_VALUE,
+                      isSelected: !selectedItem?.value,
+                      value: CONST.SEARCH.NONE_OPTION_ITEM_VALUE,
+                  },
+              ]
+            : [];
+
     const sections = noResultsFound
         ? []
         : [
               {
                   title: undefined,
-                  data: initiallySelectedItemSection,
+                  data: noneOptionSection,
                   sectionIndex: 0,
+              },
+              {
+                  title: undefined,
+                  data: initiallySelectedItemSection,
+                  sectionIndex: 1,
               },
               {
                   title: pickerTitle,
                   data: remainingItemsSection,
-                  sectionIndex: 1,
+                  sectionIndex: 2,
               },
           ];
 
@@ -85,14 +105,27 @@ function SearchSingleSelectionPicker({
         if (!item.text || !item.keyForList || !item.value) {
             return;
         }
+
+        const isNoneOption = item.value === CONST.SEARCH.NONE_OPTION_ITEM_VALUE;
+        const valueToSave = isNoneOption || item.isSelected ? undefined : item.value;
+        // or we can make re-clicking the same item to do nothing
+        // if (item.isSelected && !isNoneOption) {
+        //     return;
+        // }
+        // const valueToSave = isNoneOption ? undefined : item.value;
+
         if (shouldAutoSave) {
-            onSaveSelection(item.isSelected ? '' : item.value);
+            onSaveSelection(valueToSave);
             Navigation.goBack(backToRoute ?? ROUTES.SEARCH_ADVANCED_FILTERS.getRoute());
             return;
         }
-        if (!item.isSelected) {
-            setSelectedItem({name: item.text, value: item.value});
+
+        if (valueToSave === undefined) {
+            setSelectedItem(undefined);
+            return;
         }
+
+        setSelectedItem({name: item.text, value: item.value});
     };
 
     const resetChanges = () => {
@@ -123,7 +156,7 @@ function SearchSingleSelectionPicker({
             sections={sections}
             onSelectRow={onSelectItem}
             ListItem={SingleSelectListItem}
-            initiallyFocusedItemKey={initiallySelectedItem?.value}
+            initiallyFocusedItemKey={shouldShowNoneOption ? CONST.SEARCH.NONE_OPTION_ITEM_VALUE : initiallySelectedItem?.value}
             shouldShowTextInput={shouldShowTextInput}
             textInputOptions={textInputOptions}
             footerContent={shouldAutoSave ? undefined : footerContent}

@@ -34,7 +34,7 @@ function AddCategoryPage({route}: AddCategoryPageProps) {
     const backToRoute = isEditing ? ROUTES.RULES_MERCHANT_EDIT.getRoute(policyID, ruleID) : ROUTES.RULES_MERCHANT_NEW.getRoute(policyID);
 
     const onSave = (value?: string) => {
-        updateDraftMerchantRule({category: value});
+        updateDraftMerchantRule({category: value ?? ''});
     };
 
     return (

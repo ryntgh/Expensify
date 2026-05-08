@@ -31,7 +31,7 @@ function AddTaxPage({route}: AddTaxPageProps) {
     const backToRoute = isEditing ? ROUTES.RULES_MERCHANT_EDIT.getRoute(policyID, ruleID) : ROUTES.RULES_MERCHANT_NEW.getRoute(policyID);
 
     const onSave = (value?: string) => {
-        updateDraftMerchantRule({tax: value});
+        updateDraftMerchantRule({tax: value ?? ''});
     };
 
     return (
